@@ -1,0 +1,29 @@
+# 依赖
+node_modules/
+
+# 构建产物
+.next/
+out/
+build/
+dist/
+
+# 环境变量（不要上传敏感信息）
+.env
+.env.local
+.env.production
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 日志
+*.log
+npm-debug.log*
+
+# 数据库（可选，如果想保留用户数据可以上传）
+# prisma/*.db

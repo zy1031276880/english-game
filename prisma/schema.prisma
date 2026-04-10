@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      String   @default("CLIENT")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  bids      Bid[]
+  tasks     Task[]
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  budget      Float
+  skills      String
+  status      String   @default("OPEN")
+  clientId    String
+  assignedTo  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  bids        Bid[]
+  client      User     @relation(fields: [clientId], references: [id])
+}
+
+model Bid {
+  id         String   @id @default(cuid())
+  taskId     String
+  engineerId String
+  amount     Float
+  message    String?
+  status     String   @default("PENDING")
+  createdAt  DateTime @default(now())
+  task       Task     @relation(fields: [taskId], references: [id])
+  engineer   User     @relation(fields: [engineerId], references: [id])
+
+  @@unique([taskId, engineerId])
+}
+
+model GameUser {
+  id        String     @id @default(cuid())
+  username  String     @unique
+  password  String
+  nickname  String?
+  avatar    String?    @default("🎮")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  gameState GameState?
+}
+
+model GameState {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  level                Int      @default(1)
+  exp                  Int      @default(0)
+  coins                Int      @default(100)
+  currentCity          String   @default("newyork")
+  unlockedCities       String   @default("newyork")
+  completedScenes      String   @default("[]")
+  cards                String   @default("[]")
+  buildings            String   @default("airport")
+  achievements         String   @default("[]")
+  stats                String   @default("{\"scenesCompleted\":0,\"correctAnswers\":0,\"totalAnswers\":0,\"cardsCollected\":0}")
+  currentStreak        Int      @default(0)
+  maxStreak            Int      @default(0)
+  lastLoginDate        String   @default("")
+  consecutiveLoginDays Int      @default(0)
+  dailyTasks           String   @default("{}")
+  lastTaskResetDate    String   @default("")
+  tutorialStep         Int      @default(0)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  user                 GameUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SharedClawUser {
+  id         String     @id @default(cuid())
+  username   String     @unique
+  password   String
+  nickname   String?
+  email      String?
+  credits    Int        @default(2000)
+  maxCredits Int        @default(2000)
+  isActive   Boolean    @default(true)
+  lastUsedAt DateTime?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  usageLogs  UsageLog[]
+}
+
+model UsageLog {
+  id          String         @id @default(cuid())
+  userId      String
+  prompt      String
+  response    String?
+  creditsUsed Int
+  model       String?
+  tokensIn    Int?
+  tokensOut   Int?
+  latency     Int?
+  success     Boolean        @default(true)
+  error       String?
+  createdAt   DateTime       @default(now())
+  user        SharedClawUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model PersonalClawUser {
+  id           String                @id @default(cuid())
+  username     String                @unique
+  password     String
+  nickname     String?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  chatMessages PersonalChatMessage[]
+}
+
+model PersonalChatMessage {
+  id        String           @id @default(cuid())
+  userId    String
+  role      String
+  content   String
+  model     String?
+  tokens    Int?
+  createdAt DateTime         @default(now())
+  user      PersonalClawUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
