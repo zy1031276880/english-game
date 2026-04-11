@@ -1,10 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  // 允许开发环境跨域请求（扣子预览环境）
+  output: 'export',
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
+  },
   allowedDevOrigins: ['*.dev.coze.site', 'dev.coze.site'],
-  // 禁用静态优化，避免构建时预渲染
   experimental: {
     serverActions: {
       allowedOrigins: ['localhost:5000', '127.0.0.1:5000', '0.0.0.0:5000']
